@@ -41,17 +41,19 @@ export class DenoFeeder implements Feeder {
     }
     previousPublishedDateKey.push("publishedDate");
 
-    // Find the latest published date.
+    // Find the previous published date.
     const previousPublishedDateResult = await this.kv.get<number>(
       previousPublishedDateKey,
     );
     const previousPublishedDate = previousPublishedDateResult?.value ?? 0;
-    let latestPublishedDate = previousPublishedDate;
+
+    // Find the next published date while filtering out old entries.
+    let nextPublishedDate = previousPublishedDate;
     const newEntries = entries.filter((entry) => {
       const publishedDate = entry.published?.getTime() ?? 0;
       if (publishedDate > previousPublishedDate) {
-        if (publishedDate > latestPublishedDate) {
-          latestPublishedDate = publishedDate;
+        if (publishedDate > nextPublishedDate) {
+          nextPublishedDate = publishedDate;
         }
 
         return true;
@@ -60,15 +62,16 @@ export class DenoFeeder implements Feeder {
       return false;
     });
 
-    // Update the latest published date.
+    // Persist the published date.
     await this.kv.atomic()
       .check(previousPublishedDateResult)
-      .set(previousPublishedDateKey, latestPublishedDate)
+      .set(previousPublishedDateKey, nextPublishedDate)
       .commit();
 
     // Return new entries sorted by published date in ascending order.
-    return newEntries.toSorted((a, b) =>
-      (a.published?.getTime() ?? 0) - (b.published?.getTime() ?? 0)
-    );
+    return newEntries
+      .toSorted((a, b) =>
+        (a.published?.getTime() ?? 0) - (b.published?.getTime() ?? 0)
+      );
   }
 }
