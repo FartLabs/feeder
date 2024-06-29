@@ -4,6 +4,8 @@ Programmable RSS/Atom feed event listeners.
 
 ## Example
 
+See a full example in [`example.ts`](./example.ts).
+
 ```ts
 const kv = await Deno.openKv();
 const feeder = new DenoFeeder(kv);
