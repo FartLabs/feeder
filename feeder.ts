@@ -1,4 +1,4 @@
-import type { FeedEntry } from "@mikaelporttila/rss";
+import type { FeedEntry } from "./shared.ts";
 
 export interface Feeder {
   /**
