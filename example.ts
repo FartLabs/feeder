@@ -52,9 +52,8 @@ function renderEmbed(entry: FeedEntry): APIEmbed {
     color: 0xc3ef3c,
     url: entry.links?.[0].href,
     footer: {
-      text: Intl.DateTimeFormat("en-US", { dateStyle: "full" }).format(
-        entry.published,
-      ),
+      text: Intl.DateTimeFormat("en-US", { dateStyle: "full" })
+        .format(entry.published),
     },
   };
 }

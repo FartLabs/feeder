@@ -69,9 +69,8 @@ export class DenoFeeder implements Feeder {
       .commit();
 
     // Return new entries sorted by published date in ascending order.
-    return newEntries
-      .toSorted((a, b) =>
-        (a.published?.getTime() ?? 0) - (b.published?.getTime() ?? 0)
-      );
+    return newEntries.toSorted((a, b) =>
+      (a.published?.getTime() ?? 0) - (b.published?.getTime() ?? 0)
+    );
   }
 }
