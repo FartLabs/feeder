@@ -1,4 +1,6 @@
+import { chunk } from "@std/collections/chunk";
 import type { RESTPostAPIWebhookWithTokenJSONBody } from "discord_api_types/rest/v10/webhook.ts";
+import type { APIEmbed } from "discord_api_types/payloads/v10/channel.ts";
 import { DenoFeeder } from "./deno_feeder.ts";
 import type { FeedEntry } from "./shared.ts";
 
@@ -15,49 +17,44 @@ if (import.meta.main) {
     "FartLabs Blog",
     "* * * * *",
     async (entries) => {
-      for (const entry of entries) {
-        await executeWebhook(url, entry);
+      for (const entriesChunk of chunk(entries, 10)) {
+        await executeWebhook(url, entriesChunk);
       }
     },
   );
 }
 
-async function executeWebhook(url: string, entry: FeedEntry) {
-  console.log("Executing webhook", { entry });
+async function executeWebhook(url: string, entries: FeedEntry[]) {
   await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(renderEmbed(entry)),
+    body: JSON.stringify(renderEmbeds(entries)),
   });
 }
 
-function renderEmbed(entry: FeedEntry): RESTPostAPIWebhookWithTokenJSONBody {
+function renderEmbeds(
+  entries: FeedEntry[],
+): RESTPostAPIWebhookWithTokenJSONBody {
   return {
-    embeds: [
-      {
-        title: entry.title?.value,
-        description: entry.description?.value,
-        url: entry.links?.[0].href,
-        footer: {
-          text: renderFooter(entry),
-        },
-      },
-    ],
+    content: "✨**NEW**✨",
+    embeds: entries.map((entry) => renderEmbed(entry)),
+  };
+}
+
+function renderEmbed(entry: FeedEntry): APIEmbed {
+  return {
+    title: entry.title?.value,
+    description: entry.description?.value,
+    color: 0xc3ef3c,
+    url: entry.links?.[0].href,
+    footer: { text: renderFooter(entry) },
   };
 }
 
 function renderFooter(entry: FeedEntry) {
-  const author = entry.author?.name ?? "FartLabs";
-  const published = entry.published !== undefined
-    ? `, published ${
-      Intl.DateTimeFormat("en-US", {
-        dateStyle: "full",
-        timeStyle: "short",
-      }).format(entry.published)
-    }`
-    : "";
-
-  return `${author}${published}`;
+  return Intl.DateTimeFormat("en-US", { dateStyle: "full" }).format(
+    entry.published,
+  );
 }

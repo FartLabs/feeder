@@ -1,9 +1,11 @@
 {
+  "lock": false,
   "tasks": {
     "example": "deno run --env --unstable-kv --unstable-cron -A example.ts"
   },
   "imports": {
     "@mikaelporttila/rss": "jsr:@mikaelporttila/rss@^1.1.1",
+    "@std/collections": "jsr:@std/collections@^1.0.1",
     "discord_api_types/": "https://deno.land/x/discord_api_types@0.37.91/"
   }
 }
