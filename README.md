@@ -42,9 +42,9 @@ deno lint
 
 ## Dependencies
 
-See all of the project dependencies in the `deno.json` file.
+See every dependency in [`deno.json`](./deno.json).
 
-- [**jsr.io/@mikaelporttila/rss**](https://jsr.io/@mikaelporttila/rss)
+- <https://jsr.io/@mikaelporttila/rss>
 
 ---
 
