@@ -6,7 +6,23 @@ export class DenoFeeder implements Feeder {
   public constructor(
     private readonly kv: Deno.Kv,
     private readonly kvKeyPrefix: Deno.KvKey = [],
+  ) {}
+
+  public async cron(
+    url: string,
+    name: string,
+    schedule: string | Deno.CronSchedule,
+    handler: (entries: FeedEntry[]) => void | Promise<void>,
   ) {
+    await Deno.cron(
+      name,
+      schedule,
+      async () => {
+        const feed = await fetchFeed(url);
+        const entries = await this.ingest(feed.entries);
+        await handler(entries);
+      },
+    );
   }
 
   public async ingest(entries: FeedEntry[]): Promise<FeedEntry[]> {
@@ -37,23 +53,9 @@ export class DenoFeeder implements Feeder {
       .check(previousPublishedDateResult)
       .set(previousPublishedDateKey, latestPublishedDate)
       .commit();
-    return newEntries;
-  }
 
-  public async cron(
-    url: string,
-    name: string,
-    schedule: string | Deno.CronSchedule,
-    handler: (entries: FeedEntry[]) => void | Promise<void>,
-  ) {
-    await Deno.cron(
-      name,
-      schedule,
-      async () => {
-        const feed = await fetchFeed(url);
-        const entries = await this.ingest(feed.entries);
-        await handler(entries);
-      },
+    return newEntries.toSorted((a, b) =>
+      (a.published?.getTime() ?? 0) - (b.published?.getTime() ?? 0)
     );
   }
 }
