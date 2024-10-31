@@ -13,7 +13,7 @@ if (import.meta.main) {
   const kv = await Deno.openKv();
   const feeder = new DenoFeeder(kv, ["feeder"]);
   await feeder.cron(
-    "https://fart.tools/feed.xml",
+    "https://fartlabs.org/feed.xml",
     "FartLabs Blog",
     "0 * * * *", // https://crontab.guru/#0_*_*_*_*
     async (entries) => {
