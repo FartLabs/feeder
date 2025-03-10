@@ -1,4 +1,5 @@
 import { chunk } from "@std/collections/chunk";
+// import { Devvit } from "@devvit/public-api"
 import type { RESTPostAPIWebhookWithTokenJSONBody } from "discord_api_types/rest/v10/webhook.ts";
 import type { APIEmbed } from "discord_api_types/payloads/v10/channel.ts";
 import type { FeedEntry } from "./shared.ts";
@@ -10,6 +11,7 @@ if (import.meta.main) {
     throw new Error("DISCORD_WEBHOOK_URL is not set");
   }
 
+  // const devvit = new Devvit({});
   const kv = await Deno.openKv();
   const feeder = new DenoFeeder(kv, ["feeder"]);
   await feeder.cron(
@@ -20,6 +22,9 @@ if (import.meta.main) {
       for (const entriesChunk of chunk(entries, 10)) {
         await executeWebhook(url, renderEmbeds(entriesChunk));
       }
+
+      // for (const entry of entries) {
+      // }
     },
   );
 }
@@ -52,8 +57,9 @@ function renderEmbed(entry: FeedEntry): APIEmbed {
     color: 0xc3ef3c,
     url: entry.links?.[0].href,
     footer: {
-      text: Intl.DateTimeFormat("en-US", { dateStyle: "full" })
-        .format(entry.published),
+      text: Intl.DateTimeFormat("en-US", { dateStyle: "full" }).format(
+        entry.published,
+      ),
     },
   };
 }
